@@ -1,0 +1,231 @@
+---
+title: "Symulacje Stochastyczne lab 1"
+author: "Aleksandra Dąbrowska"
+date: "27 February 2017"
+output: 
+  html_document:
+    toc: TRUE
+    
+---
+
+#Introduction. Probability distributions
+
+##General
+Generate random numbers.
+```{r}
+n <- 10
+X <- runif(10)
+
+n <- 100
+X <- runif(n)
+hist(X, prob=TRUE)
+
+```
+
+```{r}
+n<-1000
+X<- rnorm(n)
+hist(X, prob=TRUE, col="blue")
+curve(dnorm(x, mean=mean(X), sd=sd(X)), add=TRUE)
+
+```
+
+```{r}
+plot(ecdf(X))
+xseq <- seq(0,1, 0.01)
+
+
+```
+5.Similar exercise with a discrete distribution. Roll a die n = 1000 times. You can use
+?sample
+or just discretize Uniform. Analyse the results. Count the results and make a graph. The suggested functions are
+?table
+?barplot
+Use the goodness-of-fit chi squared test. Compute the test statistic and p-value using known formulas (Statistics 1). Compare with those automatically computed by
+?chisq.test
+
+```{r}
+n <- 1000
+kostka <- c(1:6)
+
+wyniki <- replicate(n,sample(kostka,1))
+liczby <- table(wyniki)
+barplot(liczby, col="blue", main="Liczba poszczególnych oczek w 1000 rzutach")
+
+
+chi_squared <- function(N, n, p){
+  E <- n*p
+  wynik <- sum((N-E)^2/E)
+  return(wynik)
+}
+
+N<-c()
+licznik <- c(1:6)
+for  (i in licznik){
+  N[i] <-sum(wyniki==i)
+}
+
+probabilities <- c(1/6,1/6,1/6,1/6,1/6,1/6)
+chi_squared(N,n,probabilities)
+
+chisq.test(N,p=probabilities)
+
+```
+
+6.Generate a large sample X1, . . . , Xn, . . . from a Uniform distribution. Make a graph of Sn/n versus n, where Sn = X1 + · · · + Xn. Hint: functions
+?cumsum
+?plot
+What result do you expect? Recall SLLN (Probability 1)
+
+```{r}
+n<-10000
+X <- runif(n)
+n <- c(1:n)
+
+Sn <- cumsum(X)
+M<- Sn/n
+plot(n,M,type="l")
+
+```
+
+Oczekujemy zbieznosci do wartości oczekiwanej rozkladu jednostajnego.
+
+
+7.Generate a large number m of samples of (moderate) size n from a Uniform distribution. Make a histogram of m ”independent copies” of Sn. What result do you expect? Recall CLT (Probability 1). Superimpose a graph of appropriate Normal density.
+
+```{r}
+m<-10000
+n<-1000
+mozeCTG <- replicate(m, sum(runif(n)))
+hist(mozeCTG, prob=TRUE, breaks=100, col="blue")
+curve(dnorm(x, mean=mean(mozeCTG), sd=sd(mozeCTG)), add=TRUE)
+```
+
+
+
+8.
+Write a function which computes X = U1 + · · · + U12 − 6, where Uis are iid Uniform(0, 1) (by now you should be able to write this function as a single line). Why n = 12? Generate n copies of X and analyse.
+
+```{r}
+m <- 10000
+
+suma <- replicate(m, sum(runif(12))-6)
+hist(suma, prob=TRUE, breaks=50, col="blue")
+curve(dnorm(x, mean=mean(suma), sd=sd(suma)), add=TRUE)
+qqnorm(suma)
+qqline(suma, col="red")
+ks.test(suma, pnorm)
+
+```
+
+Test Kołmogorowa-Smirnowa mówi,że nie ma podstaw do odrzucenia hipotezy mówiącej, że rozkład empiryczny jest równy teoretycznemu, w tym przypadku normalnemu.
+
+
+9.
+Generate a large number m of samples of size n (odd) from a Uniform distribution. Make a histogram of m medians. What result do you expect? Superimpose a graph of appropriate density (Statistics 1). What is the expectation and the variance of the median? (Statistics 1 or Wiki).
+
+```{r}
+m <- 10000
+n <- 301
+
+median <- replicate(m, median(runif(n)))
+hist(median, prob=TRUE, col="blue", breaks=100)
+curve(dbeta(x,151,151), add=TRUE)
+
+```
+Mediany mają rozklad Beta(n+1/2,n+1/2)
+
+
+10.
+What is the limit distribution of the median if n → ∞? Illustrate graphically. GUESS the theorem: if U1, . . . , Un are iid Uniform(0, 1) then bn(med(U1, . . . , Un) − a) → Normal(0, 1).
+Find appropriate a and bn. “Confirm” experimentally.
+
+Medians have Beta distribution with expected value equal to 1/2 and varince 1/4(n+1).
+Using the CLT we have that the limit distribution is N(0,1). So we take a=1/2, bn=sqrt(4(n+1)).
+```{r}
+m <- 10000
+n <- 501
+
+median <- replicate(m, median(runif(n)))
+
+median <- median-1/2
+median <- sqrt(4*(501+1))*median
+hist(median, prob=TRUE, col="blue", breaks=150)
+curve(dnorm(x, mean=mean(median), sd=sd(median)), add=TRUE)
+
+ks.test(median, pnorm)
+
+
+```
+
+11.
+Generate a large number m of samples of size n from a Uniform distribution. Make a histogram of m minima. What result do you expect? Superimpose a graph of appropriate density (Statistics 1). What is the expectation and the variance of the minimum? (Statistics 1 or Wiki). PROVE the theorem: if U1, . . . , Un are iid Uniform(0, 1) then
+bnmin(U1, . . . , Un) → what?
+Find appropriate bn. “Confirm” experimentally
+
+
+```{r}
+m <- 10000
+n <- 1000
+
+minimum <- replicate(m, min(runif(n)))
+
+hist(minimum, col="blue", breaks=100, freq=FALSE)
+curve(dexp(x, rate=2),add=TRUE)
+
+#cos jest nie tak z gestoscia
+
+```
+
+12.
+GUESS the theorem: if U1, . . . , Un are iid Uniform(0, 1) then
+bn(min(U1, . . . , Un) + 1 − min(U1, . . . , Un)) → what?
+Find appropriate bn. “Confirm” experimentally
+
+```{r}
+m <- 10000
+n <- 1000
+
+
+generuj <-replicate(m, {
+  X<-runif(n)
+  data <- c(min(X),max(X))
+})
+
+generuj <- t(generuj)
+generuj <-as.data.frame(generuj)
+  
+zmienna <- generuj$V2+1-generuj$V1
+
+hist(zmienna, prob=TRUE, col="blue")
+curve(dgamma(x, shape = 2, scale = 1/n), add = TRUE, col = "red")
+
+
+```
+$1 - X_{n:n}$ oraz $X_{1:n}$ mają rozkład Exp(1). Asymptotycznie suma ma rozklad Gamma(2, n).
+
+
+13.
+Let X1, . . . , Xn be iid with EXi = 0 (choose such a distribution to your taste) and Sn = X1 + · · · + Xn.
+What is the “meaning” of Tn in plain English (or in plain Polish: po prostu...)? Make a graph of a “sample path” (0, S1, S2, . . . , Sn) and look at the corresponding value of Tn. Explore experimentally the probability distribution of Tn for large n. GUESS the theorem: if n → ∞
+then Tn → what?
+Remarks: If you do not know the answer, you are not likely to guess without the help of simulation (well, if you can guess then you are exceptionally bright). Simulation helps. By now, you should be accustomed to the methodology of exploring a probability distribution via simulation: recall the previous questions.
+
+```{r}
+m <- 10000
+n <- 100
+X <- rnorm(n)
+S <- cumsum(X)
+plot(1:n, S, "l")
+
+suma <- replicate(m, {
+      X <- rnorm(n)
+      S <- cumsum(X)
+      sum(S > 0) / n
+})
+
+hist(suma, breaks = 100, prob = TRUE, col = "blue")
+
+
+```
+Suma ma rozkład Beta.
