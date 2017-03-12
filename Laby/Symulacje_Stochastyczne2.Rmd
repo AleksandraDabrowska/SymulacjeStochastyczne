@@ -1,0 +1,178 @@
+---
+title: "Symulacje Stochastyczne lab 2"
+author: "Aleksandra Dąbrowska"
+date: "6 March 2017"
+output: 
+  html_document:
+    toc: TRUE
+    
+---
+
+
+
+#Lab1
+
+Chi squared test and p-value.
+
+```{r}
+
+n <- 1000
+kostka <- c(1:6)
+wyniki <- replicate(n,sample(kostka,1))
+
+
+chi_2 <- function(x){
+  n <- length(x)
+  x <- table(x)
+  x <- as.data.frame(x)
+  x <- x[,2]
+  stat <- sum((x-n/6)^2/(n/6))
+  p_val <- 1-pchisq(stat, df=5)
+  return(c(stat,p_val))
+}
+
+chi_2_2 <- function(x){
+  n <- length(x)
+  stat <- sum((ftable(x)-n/6)^2/(n/6))
+  p_val <- 1-pchisq(stat, df=5)
+  return(c(stat,p_val))
+}
+
+
+chisq.test(table(wyniki))
+
+
+
+
+
+```
+
+#Rejection sampling
+1.
+(A simple Bayesian model) Consider the following 2-stage sampling: first draw θ ∼ Uniform(0, 1) and then X ∼ Bin(n, θ). θ is a parameter of the probability distribution of observed random variable X, and is itself a random variable with the uniform prior distribution. Choose eg. n = 9. • Discover experimentally the marginal distribution of X. Compute this distribution analytically. • Discover experimentally the posterior distribution of θ given X = 3 (say), using ABC. Compute the posterior analytically. Compare the empirical and theoretical distribution. • Try the 2-stage sampling in the opposite order: first draw X from the marginal and then θ from the posterior. Verify that you get θ distributed according to the prior.
+
+a)Discover experimentally the marginal distribution of X.
+```{r}
+
+
+m<- 10000
+marginal <- function(){
+  theta <- runif(1)
+  likelihood <- rbinom(1,10,prob = theta)
+  return(likelihood)
+}
+
+
+#wektorem
+theta <- runif(10000)
+X<- rbinom(10000,10,theta)
+hist(X, col="blue")
+
+marginal_distribution <- replicate(m, marginal())
+hist(marginal_distribution, col="blue", prob=TRUE)
+
+
+
+
+```
+
+
+rozkład brzegowy jest jednostajny na zbiorze 11 elementowym {0,...,10}
+Prawdopodobieństwo to 1/11=1/n+1
+
+
+b)Discover experimentally the posterior distribution of θ given X = 3 (say), using ABC
+```{r}
+
+abc_alg <- function(){
+  X <-0
+  while(X!=3){
+  theta <- runif(1)
+  X<-rbinom(1,10, prob=theta)}
+  return(theta)
+}
+
+m<- 10000
+
+posterior_dist <- replicate(m,abc_alg())
+hist(posterior_dist, col="blue", breaks=200, prob=TRUE)
+curve(dnorm(x,4,8), add=TRUE)
+
+
+
+```
+Rozkład a posteriori to Beta(4,8)
+
+
+c)Try the 2-stage sampling in the opposite order: first draw X from the marginal and then θ from the posterior. Verify that you get θ distributed according to the prior
+```{r}
+
+abc_alg_rev <- function(){
+  liczby <- c(0:10)
+  X <- sample(liczby,1)
+  theta <- rbeta(1,X+1,10-X+1)
+  return(theta)
+}
+
+a_priori <- replicate(m, abc_alg_rev())
+hist(a_priori, prob=TRUE, breaks=200, col="blue")
+
+
+
+
+```
+
+Dostaliśmy rozkład jednostajny na (0,1), czyli rozkład a priori thety.
+
+2.
+The following algorithm is a simple example of rejection sampling:
+repeat
+Gen X ∼ U(0, 1)
+Gen U ∼ U(0, 1)
+until U < X
+return X
+What is the distribution of X at the output?
+Someone (a rather prominent someone) proposed a ”more efficient version” of this algorithm:
+Gen U ∼ U(0, 1)
+repeat
+Gen X ∼ U(0, 1)
+until U < X
+return X
+What is the distribution of X at the output? Compute theoretically and check the answer
+experimentally.
+
+```{r}
+m <- 10000
+
+
+rozkład.X <- function(){
+  U <- runif(1)
+  X <- 2
+  while(U<X){
+    X<-runif(1)
+  }
+  return(X)
+}
+
+
+jaki.x <- replicate(m, rozklad())
+hist(jaki.x, prob=TRUE, breaks=100, col="blue")
+
+
+```
+
+3.Let X1, . . . , Xn, . . . be iid with probability distribution F. Define times and values of records by T1 = 1, R1 = X1, Tk = min{n > Tk−1 : Xn > Rk−1} and Rk = XTk
+. Generate a sequence (having the joint distribution equal to that) of record values R1, . . . , Rk for a big k.
+• Using brute force, for F = Ex(1) (exponential distribution).
+• In a civilized way, for the exponential F.
+• For F = Uniform(0, 1), using transformation of the previous sequence.
+• Compute 1-dimensional cdf P(Rk ≤ x) theoretically (using induction) and compare with the results of your experiment.
+
+
+a)
+```{r}
+
+
+
+
+```
