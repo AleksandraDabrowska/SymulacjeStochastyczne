@@ -144,21 +144,37 @@ experimentally.
 ```{r}
 m <- 10000
 
+rozklad <- function(){
+  X <- runif(1)
+  U <- runif(1)
+  while(U>X){
+    X<-runif(1)
+    U<-runif(1)
+  }
+  return(X)
+}
+
+
+jaki.x2 <- replicate(m, rozklad())
+hist(jaki.x2, prob=TRUE, breaks=100, col="blue")
+
+#tu mamy rozklad z gestoscia f(x)=2x
+
 
 rozkład.X <- function(){
   U <- runif(1)
-  X <- 2
-  while(U<X){
+  X <- runif(1)
+  while(U>X){
     X<-runif(1)
   }
   return(X)
 }
 
 
-jaki.x <- replicate(m, rozklad())
+jaki.x <- replicate(m, rozklad.X())
 hist(jaki.x, prob=TRUE, breaks=100, col="blue")
 
-
+#tu mamy rozklad brzegowy x z gestoscia f(x)= -log(1-x)
 ```
 
 3.Let X1, . . . , Xn, . . . be iid with probability distribution F. Define times and values of records by T1 = 1, R1 = X1, Tk = min{n > Tk−1 : Xn > Rk−1} and Rk = XTk

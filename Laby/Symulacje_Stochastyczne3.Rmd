@@ -1,0 +1,80 @@
+---
+title: "Symulacje_Stochastyczne3"
+author: "Aleksandra Dąbrowska"
+date: "13 March 2017"
+output: html_document
+---
+
+#Multivariate normal distribution
+```{r}
+d=2
+V <- matrix(c(1,2,2,9),2,2)
+R <- t(chol(V))
+I <- diag(2)
+library(MASS)
+X1 <- rnorm(1)
+X2 <- rnorm(1)
+#jeden sposob generowania
+Z <- c(X1,X2)
+
+#przy uzyciu pakietu
+Z <- mvrnorm(1, mu=c(0,0), Sigma=I)
+X <- R %*% Z
+
+
+
+#napisac funkcje ktora to robi dla 2 wymiarow - przekopiowac
+normal_distr <- function(V){
+  R <- t(chol(V))
+  X1 <- rnorm(1)
+  X2 <- rnorm(1)
+  Z <- c(X1,X2)
+  X <- R %*% Z
+  X <- as.numeric(X)
+  return(X)
+}
+```
+
+#Duzo punktow z tego rozkladu dwuwymiarowego i scatterplot
+```{r}
+#generujemy funkcja wbudowana
+rozklad <- mvrnorm(10000, mu=c(0,0), Sigma=V)
+
+#generujemy nasza funckja
+rozklad <- replicate(1000,normal_distr(V))
+rozklad <- t(rozklad)
+rozklad <- as.data.frame(rozklad)
+```
+
+#Wizualizacja
+```{r}
+
+plot(rozklad$V1,rozklad$V2)
+
+library(ggplot2)
+ggplot(rozklad, aes(V1,V2))+geom_point()+stat_density2d()
+ 
+#kowariancja
+cov(rozklad)
+
+#najpierw kontur dla N(0,I)
+Z <- mvrnorm(1, mu=c(0,0), Sigma=I)
+
+x<- seq(0,1,by=0.1)
+y <- seq(0,1, by=0.1)
+gestosc <- function(x,y){
+  wart <- (1/2*pi)*(exp(-0.5*(x^2+y^2)))
+  return(wart)
+}
+
+#generuje macierz punktow przetworzonych funkcja 'gestosc'
+
+
+#dodac contour
+plot(rozklad$V1,rozklad$V2)
+x <- seq(-3,3, 0.01)
+y <- seq(-10,7,0.01)
+Z<- outer(x,y,'gestosc')
+contour(x,y,Z, add=TRUE)
+
+```
