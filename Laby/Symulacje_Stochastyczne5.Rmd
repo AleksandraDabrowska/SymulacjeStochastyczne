@@ -1,0 +1,58 @@
+---
+title: "Symulacje stochastyczne 5"
+author: "Aleksandra Dąbrowska"
+date: "20 March 2017"
+output: html_document
+---
+
+AR(1).
+```{r}
+AR <- function(n,sig,ro){
+  W <- rnorm(n,0,sig)
+  X <- c()
+  X[1]<-0
+  for (i in 2:n){
+    X[i] <- ro*X[i-1]+W[i]
+  }
+  return(X)
+}
+
+n <- 100
+ro <- 0.8
+
+wynik_1 <- AR(100,1,0.8)
+wynik_2 <- AR(100,1,-0.8)
+
+hist(wynik_1, prob=TRUE)
+hist(wynik_2, prob=TRUE)
+
+#plot(1:n, wynik_1, type = "l")
+```
+
+
+Prosty łańcuch Markowa
+```{r}
+library(markovchain)
+
+alpha <- 0.8
+beta <- 0.8
+
+lancuch  <- new("markovchain",states=c("1","2"),transitionMatrix = matrix(data = c(alpha, 1 - alpha, beta, 1 - beta), byrow = TRUE, nrow = 2), name = "stany")
+
+#stany stacjonarne tego lancucha
+steadyStates(lancuch)
+
+
+
+przebieg <- function(n, alpha, beta) {
+      X <- c()
+      X[1] <- 1
+      for (i in 1:n - 1) {
+        X[i+1]<- ifelse(X[i] == 1,  sample(1:2, prob = c(1 - alpha, alpha), size = 1), sample(1:2, prob = c(beta, 1 - beta), size = 1))
+      }
+      return(X)
+}
+
+dane <- przebieg(n,0.9,0.9)
+
+plot(1:n, przebieg(n,0.9,0.9))

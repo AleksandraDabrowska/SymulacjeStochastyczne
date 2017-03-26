@@ -1,0 +1,108 @@
+---
+title: "Symulacje stochastyczne 4"
+author: "Aleksandra Dąbrowska"
+date: "20 March 2017"
+output: html_document
+---
+
+Lancuch Markowa dla przestrzeni X={0,1,2,...}
+Schemat urnowy.
+```{r}
+
+a<- 1
+b<- 1
+
+x <-c()
+
+n<-1000
+x[1] <- 0
+symulacje <- function(a,b){
+for (i in 1:n){
+  x<- x[i]
+  biala <- (a+x)/(a+b+i)
+  u <- runif(1)
+  x <- ifelse(u<=biala, x+1, x)
+  x[i+1] <- x
+}
+  return(x)
+}
+
+plot(x)
+
+
+#chcemy znalezc rozklad ostatnich wartosci
+
+ostatnia <- function(a,b){
+  x <-c()
+n<-1000
+x[1] <- 0
+for (i in 1:n){
+  x <- x[i]
+  biala <- (a+x)/(a+b+i)
+  u <- runif(1)
+  x <- ifelse(u<biala, x+1, x)
+  x[i+1] <- x
+  }
+  return(x[n+1])
+}
+
+#ostatnie <- replicate(500,ostatnia(1,1))
+
+#hist(ostatnie, prob=TRUE)
+#tu ma wyjsc jednostajny czyli beta(1,1)
+
+
+#wykonujemy dzielenie wektora przez poszczegolna liczbe krokow.
+x1 <- symulacje(1,1)
+
+liczby <- c(1:1001)
+
+dzielenie <- x1/liczby
+
+plot(dzielenie)
+  
+
+#inne dane
+
+x2 <- symulacje(2,3)
+
+
+#chcemy zbieznosc od bety(a,b)
+#maja to byc zbieznosci ogonow
+
+
+ostatnie <- replicate(1000,ostatnia(2,3))
+
+hist(ostatnie, prob=TRUE)
+curve(dbeta(x,2,3),add=TRUE)
+
+
+
+
+  
+```
+
+
+
+```{r}
+#chcemy lancuch markowa dla AR(1)
+n <- 20
+x <- c()
+x[1] <- 0
+ro <- 0.9
+for (i in 1:n){
+  w <- rnorm(1)
+  x[i+1] <- x[i]*ro + w
+}
+
+
+# pokazac ze rozkald nie zalezy od stanu poczatkowego
+#pokombinowac z roznymi ro
+
+#zrobic zadanko to co na wyjladzie z alfa i beta i dwoma stanami
+
+
+
+
+```
+
