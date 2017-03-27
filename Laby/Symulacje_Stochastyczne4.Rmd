@@ -102,6 +102,86 @@ for (i in 1:n){
 #zrobic zadanko to co na wyjladzie z alfa i beta i dwoma stanami
 
 
+#robimy dluga trajektorie dla łańcucha z dwoma stanami
+a<- 0.2
+b<- 0.4
+
+x <-c()
+
+n<-1000
+x[1] <- 1
+symulacje <- function(a,b){
+for (i in 1:n){
+  u <- runif(1)
+  x[i+1] <- ifelse(x[i]==1,ifelse(u<a,2,1),ifelse(u<b,1,2))
+}
+  return(x)
+}
+
+
+x <-symulacje(a,b)
+
+liczba <-c(1:1001)
+
+x_n <-x/liczba
+
+table(x)
+
+
+
+x1 <- symulacje(0.1,0.1)
+barplot(x1)
+table(x1)
+
+x2 <- symulacje(0.5,0.5)
+table(x2)
+
+
+#srednia i wariancja
+
+x2 <- symulacje(0.5,0.5)
+mean(sum(x2)/101)#jakos 1.5
+#(sd(sum(x2)/101))^2
+
+suma <- cumsum(x2)
+suma <- suma/liczba
+plot(suma,type="l")
+
+
+
+#teraz chcemy punkt poczatkowy losowac z rozkladu stacjonarnego
+#x0 z rozkaldu dwupunktowego
+
+
+x3 <- symulacje(0.9,0.9)
+suma2 <- cumsum(x3)
+suma2 <- suma2/liczba
+
+
+x4 <- symulacje(0.1,0.1)
+suma3 <- cumsum(x4)
+suma3 <- suma3/liczba
+
+
+plot(suma, type="l",col="blue")
+plot(suma2, type="l", col="red")
+plot(suma3, type="l",col="green")
+
+
+#zbadac asymptotyczna wariancje
+m <- 1000
+powtorzenia <- replicate(m, symulacje(0.5,0.5))
+
+
+
+powtorzenia2 <- replicate(10000,{
+  x <-symulacje(0.5,0.5)
+  liczby <- c(1:1001)
+  sk <- cumsum(x)/liczby}
+  )
+
+
+var(powtorzenia2)
 
 
 ```
