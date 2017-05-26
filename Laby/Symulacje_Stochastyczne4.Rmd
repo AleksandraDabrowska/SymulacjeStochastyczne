@@ -99,7 +99,7 @@ for (i in 1:n){
 # pokazac ze rozkald nie zalezy od stanu poczatkowego
 #pokombinowac z roznymi ro
 
-#zrobic zadanko to co na wyjladzie z alfa i beta i dwoma stanami
+#zrobic zadanko to co na wykladzie z alfa i beta i dwoma stanami
 
 
 #robimy dluga trajektorie dla łańcucha z dwoma stanami
